@@ -63,3 +63,6 @@ pip-selfcheck.json
 
 # IDEA
 .idea/
+
+# DB Connection
+db.py
