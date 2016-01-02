@@ -46,7 +46,6 @@ class CoursePageHandler(tornado.web.RequestHandler):
                 i['CommentCount'] = [x['num'] for x in commentSort if x['_id'] == i['_id']][0]
             except:
                 i['CommentCount'] = 0
-        print(courses)
         self.render('course.page.html', location='course', courses=courses)
 
 
@@ -56,7 +55,6 @@ class CourseDetailHandler(tornado.web.RequestHandler):
         course = yield db.courses.find_one({'_id': ObjectId(courseId)})
         teacher = yield db.teachers.find_one({'_id': course['TeacherId']})
         course['TeacherName'] = teacher['Name']
-        print(course)
         self.render('course.detail.html', location='course', course=course)
 
 
