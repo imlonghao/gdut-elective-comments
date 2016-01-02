@@ -1,0 +1,59 @@
+{% extends base.html %}
+{% block title %}首页{% end %}
+{% block main %}
+<div class="row">
+    <div class="col s1 divider"></div>
+    <div class="col s4">
+        <h2><i class="material-icons small">receipt</i>课程信息</h2>
+        <div class="divider"></div>
+        <span class="key" style="display: none">课程编号</span>
+        <span class="value" id="CourseID" style="display: none">{{ course['_id'] }}</span>
+        <span class="key">课程名称</span>
+        <span class="value">{{ course['Name'] }}</span>
+        <span class="key">教师姓名</span>
+        <span class="value">{{ course['TeacherName'] }}</span>
+        <span class="key">课程归属</span>
+        <span class="value">{{ course['Type'] }}</span>
+        <span class="key">校区归属</span>
+        <span class="value">{{ course['Campus'] }}</span>
+        <span class="key">开课学院</span>
+        <span class="value">{{ course['Academy'] }}</span>
+        <span class="key">点名次数 / 每学期</span>
+        <span class="value">TODO<small>(取平均值)</small></span>
+        <span class="key">考核形式</span>
+        <span class="value"><abbr title="TODO" class="__web-inspector-hide-shortcut__">TODO</abbr></span>
+        <span class="key">标签</span>
+        {% for i in course['Tag'] %}
+        <div class="chip">{{ i }}</div>
+        {% end %}
+        <span class="key">评分 (0 / 100)</span>
+        <div class="progress">
+            <div class="determinate" style="width: 0%"></div>
+        </div>
+    </div>
+    <div class="col s6">
+        <h2><i class="material-icons small">comment</i>评论
+            <small>( TODO 条)</small>
+        </h2>
+        <div class="divider"></div>
+
+        <div id="comment"></div>
+
+        <ul class="pagination center">
+            <li class="disabled lastPage"><a><i class="material-icons">chevron_left</i></a></li>
+            <li class="active commentPage"><a>1</a></li>
+            <li class="waves-effect commentPage"><a>2</a></li>
+            <li class="waves-effect commentPage"><a>3</a></li>
+            <li class="waves-effect commentPage"><a>4</a></li>
+            <li class="waves-effect commentPage"><a>5</a></li>
+            <li class="waves-effect commentPage"><a>6</a></li>
+            <li class="waves-effect commentPage"><a>7</a></li>
+            <li class="waves-effect commentPage"><a>8</a></li>
+            <li class="waves-effect commentPage"><a>9</a></li>
+            <li class="waves-effect nextPage"><a><i class="material-icons">chevron_right</i></a></li>
+        </ul>
+
+    </div>
+    <div class="col s1 divider"></div>
+</div>
+{% end %}

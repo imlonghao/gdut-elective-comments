@@ -1,0 +1,14 @@
+{% for i in comment %}
+<div class="row comment">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <p class="commentText">{{ i['Content'] }}</p>
+            </div>
+            <div class="card-action right-align">
+                <span class="commentInfo">由 {{ i['NickName'] }} 于 {{ i['Time'] }} 发布</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}

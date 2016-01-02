@@ -1,0 +1,26 @@
+<thead>
+<tr>
+    <th>课程名称</th>
+    <th>教师姓名</th>
+    <th>课程归属</th>
+    <th>校区归属</th>
+    <th>开课学院</th>
+    <th>评分</th>
+    <th>评论数</th>
+    <th></th>
+</tr>
+</thead>
+<tbody>
+{% for i in courses %}
+<tr>
+    <td>{{ i['Name'] }}</td>
+    <td>{{ i['TeacherName'] }}</td>
+    <td>{{ i['Type'] }}</td>
+    <td>{{ i['Campus'] }}</td>
+    <td>{{ i['Academy'] }}</td>
+    <td>TODO</td>
+    <td>{{ i['CommentCount'] }}</td>
+    <td><a href="/course/{{ i['_id'] }}">更多信息</a></td>
+</tr>
+{% end %}
+</tbody>

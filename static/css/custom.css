@@ -1,0 +1,30 @@
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+span.key {
+    margin: 0.82rem 0 0.656rem 0;
+    font-size: 1.2rem;
+    display: block;
+}
+
+span.value {
+    margin: 0.64rem 0 0.656rem 2rem;
+    font-size: 1.7rem;
+    line-height: 110%;
+    display: block;
+}
+
+div.comment {
+    margin: 0.64rem 0 0 0;
+}
+
+.card {
+    margin: 0 0 0 0;
+}
