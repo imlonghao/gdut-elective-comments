@@ -12,4 +12,4 @@ def db():
     return motor.MotorClient('mongodb://%s:%s@%s:%s/%s' % (
         USERNAME, PASSWORD, str(PORT),
         HOST, DATABASE
-    )).DATABASE
+    ))[DATABASE]
