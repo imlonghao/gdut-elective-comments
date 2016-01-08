@@ -26,10 +26,10 @@ function changePage(page) {
             $(this).attr('class','waves-effect commentPage')
         }
     });
-    $("#comment").load("/course/" + $("#CourseID").text() + "/page/" + page)
+    $("#comment").load("/course/" + $("input[name=CourseId]").attr("value") + "/page/" + page)
 }
 $(document).ready(function () {
-    $("#comment").load("/course/" + $("#CourseID").text() + "/page/" + $(".active.commentPage").text())
+    $("#comment").load("/course/" + $("input[name=CourseId]").attr("value") + "/page/" + $(".active.commentPage").text())
     $("#course").load("/course/page/" + $(".active.coursePage").text())
 });
 $(".commentPage").click(function () {
@@ -73,4 +73,9 @@ $(".lastPage1").click(function () {
 });
 $(".nextPage1").click(function () {
     changePage1(parseInt($(".active.coursePage").text()) + 1)
+});
+
+// Add comment
+$("a#add_comment").click(function () {
+    $("#write_comment_box").openModal();
 });
