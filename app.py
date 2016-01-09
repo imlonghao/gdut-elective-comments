@@ -32,16 +32,11 @@ class CoursePageHandler(tornado.web.RequestHandler):
         commentSortCur = db.comments.aggregate([{'$group': {'_id': '$CourseId', 'num': {'$sum': 1}}}])
         courses = []
         coursesCur = db.courses.find()
-        teachers = []
-        teachersCur = db.teachers.find()
         while (yield commentSortCur.fetch_next):
             commentSort.append(commentSortCur.next_object())
         while (yield coursesCur.fetch_next):
             courses.append(coursesCur.next_object())
-        while (yield teachersCur.fetch_next):
-            teachers.append(teachersCur.next_object())
         for i in courses:
-            i['TeacherName'] = [x['Name'] for x in teachers if x['_id'] == i['TeacherId']][0]
             try:
                 i['CommentCount'] = [x['num'] for x in commentSort if x['_id'] == i['_id']][0]
             except:
@@ -53,8 +48,6 @@ class CourseDetailHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, courseId):
         course = yield db.courses.find_one({'_id': ObjectId(courseId)})
-        teacher = yield db.teachers.find_one({'_id': course['TeacherId']})
-        course['TeacherName'] = teacher['Name']
         self.render('course.detail.html', location='course', course=course)
 
 
