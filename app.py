@@ -27,7 +27,7 @@ classAcademy = {
 
 
 def datetimeformat(value, format='%Y-%m-%d %H:%M'):
-    return time.strftime(format, time.gmtime(value))
+    return time.strftime(format, time.localtime(value))
 
 
 def average(num):
