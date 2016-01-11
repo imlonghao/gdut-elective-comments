@@ -31,6 +31,7 @@ function changePage(page) {
 $(document).ready(function () {
     $("#comment").load("/course/" + $("input[name=CourseId]").attr("value") + "/page/" + $(".active.commentPage").text())
     $("table > tbody").load("/course/page/" + $(".active.coursePage").text())
+    $('select').material_select();
 });
 $(".commentPage").click(function () {
     changePage($(this).text())

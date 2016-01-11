@@ -46,21 +46,24 @@
                 </div>
                 <div class="row">
                     <div class="input-field col s4">
-                        <select name="Type" class="browser-default">
+                        <select name="Type">
                             <option value="" disabled selected>课程归属</option>
                             {% for k, v in classType.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                            <label>课程归属</label>
                         </select>
                     </div>
                     <div class="input-field col s4">
-                        <select name="Campus" class="browser-default">
+                        <select name="Campus">
                             <option value="" disabled selected>校区归属</option>
                             {% for k, v in classCampus.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                            <label>校区归属</label>
                         </select>
                     </div>
                     <div class="input-field col s4">
-                        <select name="Academy" class="browser-default">
+                        <select name="Academy">
                             <option value="" disabled selected>开设学院</option>
                             {% for k, v in classAcademy.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                            <label>开设学院</label>
                         </select>
                     </div>
                 </div>
