@@ -78,6 +78,9 @@ class CoursePageHandler(tornado.web.RequestHandler):
         while (yield coursesCur.fetch_next):
             courses.append(coursesCur.next_object())
         for i in courses:
+            i['Type'] = classType[i['Type']]
+            i['Campus'] = classCampus[i['Campus']]
+            i['Academy'] = classAcademy[i['Academy']]
             cur = db.comments.find({'CourseId': i['_id']}, {'Mark': 1})
             Mark = []
             while (yield cur.fetch_next):
