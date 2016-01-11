@@ -64,7 +64,7 @@ function changePage1(page) {
             $(this).attr('class','waves-effect coursePage')
         }
     });
-    $("#course").load("/course/page/" + page)
+    $("table > tbody").load("/course/page/" + page)
 }
 $(".coursePage").click(function () {
     changePage1($(this).text())
