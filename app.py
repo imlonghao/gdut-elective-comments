@@ -109,7 +109,6 @@ class CourseDetailHandler(tornado.web.RequestHandler):
             n = commentCur.next_object()
             Mark.append(n['Mark'])
             CheckIn.append(n['CheckIn'])
-        print(Mark, CheckIn)
         course['Mark'] = average(Mark)
         course['CheckIn'] = average(CheckIn)
         return self.render('course.detail.html', location='course', course=course)
