@@ -78,10 +78,20 @@ class CoursePageHandler(tornado.web.RequestHandler):
         while (yield coursesCur.fetch_next):
             courses.append(coursesCur.next_object())
         for i in courses:
+            cur = db.comments.find({'CourseId': i['_id']}, {'Mark': 1})
+            Mark = []
+            while (yield cur.fetch_next):
+                n = cur.next_object()
+                Mark.append(n['Mark'])
+            i['Mark'] = average(Mark)
             try:
                 i['CommentCount'] = [x['num'] for x in commentSort if x['_id'] == i['_id']][0]
             except:
                 i['CommentCount'] = 0
+        try:
+            courses = courses[(int(pageNum) - 1) * 10: int(pageNum) * 10 - 1]
+        except:
+            pass
         return self.render('course.page.html', location='course', courses=courses)
 
 
@@ -147,7 +157,8 @@ class CourseDetailPageHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, courseId, pageNum):
         comment = []
-        commentCur = db.comments.find({'CourseId': ObjectId(courseId)}).sort([('Time', -1)])
+        commentCur = db.comments.find({'CourseId': ObjectId(courseId)}).sort([('Time', -1)]).skip(
+            (int(pageNum) - 1) * 10).limit(10)
         while (yield commentCur.fetch_next):
             comment.append(commentCur.next_object())
         for i in comment:
