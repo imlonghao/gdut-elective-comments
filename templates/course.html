@@ -1,7 +1,21 @@
 {% extends base.html %}
 {% block title %}课程列表{% end %}
 {% block main %}
-<table id="course" class="centered highlight bordered responsive-table"></table>
+<table id="course" class="centered highlight bordered responsive-table">
+    <thead>
+    <tr>
+        <th>课程名称</th>
+        <th>教师姓名</th>
+        <th>课程归属</th>
+        <th>校区归属</th>
+        <th>开课学院</th>
+        <th>评分</th>
+        <th>评论数</th>
+        <th><a class="btn-floating waves-effect waves-light red center" id="add_comment"><i class="material-icons">add</i></a></th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 <ul class="pagination center">
     <li class="disabled lastPage1"><a><i class="material-icons">chevron_left</i></a></li>
     <li class="active coursePage"><a>1</a></li>
@@ -15,4 +29,50 @@
     <li class="waves-effect coursePage"><a>9</a></li>
     <li class="waves-effect nextPage1"><a><i class="material-icons">chevron_right</i></a></li>
 </ul>
+<div id="write_comment_box" class="modal">
+    <div class="modal-content">
+        <h4>新增一门课程</h4>
+        <div class="row">
+            <form class="col s12" method="post">
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input id="Name" name="Name" type="text" class="validate" required>
+                        <label for="Name">课程名称</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="TeacherName" name="TeacherName" type="text" class="validate" required>
+                        <label for="TeacherName">教师姓名</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s4">
+                        <select name="Type" class="browser-default">
+                            <option value="" disabled selected>课程归属</option>
+                            {% for k, v in classType.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                        </select>
+                    </div>
+                    <div class="input-field col s4">
+                        <select name="Campus" class="browser-default">
+                            <option value="" disabled selected>校区归属</option>
+                            {% for k, v in classCampus.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                        </select>
+                    </div>
+                    <div class="input-field col s4">
+                        <select name="Academy" class="browser-default">
+                            <option value="" disabled selected>开设学院</option>
+                            {% for k, v in classAcademy.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                        </select>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <span style="margin: 6px">注意：新增课程需要管理员人工审核</span>
+        <button class="btn waves-effect waves-light" type="submit" name="action">提交
+            <i class="material-icons right">send</i>
+        </button>
+        </form>
+    </div>
+</div>
 {% end %}

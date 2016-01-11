@@ -30,7 +30,7 @@ function changePage(page) {
 }
 $(document).ready(function () {
     $("#comment").load("/course/" + $("input[name=CourseId]").attr("value") + "/page/" + $(".active.commentPage").text())
-    $("#course").load("/course/page/" + $(".active.coursePage").text())
+    $("table > tbody").load("/course/page/" + $(".active.coursePage").text())
 });
 $(".commentPage").click(function () {
     changePage($(this).text())

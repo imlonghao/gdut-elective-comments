@@ -17,21 +17,21 @@
         <span class="key">开课学院</span>
         <span class="value">{{ course['Academy'] }}</span>
         <span class="key">点名次数 / 每学期</span>
-        <span class="value">TODO<small>(取平均值)</small></span>
+        <span class="value">{{ course['CheckIn'] }}<small>(取平均值)</small></span>
         <span class="key">考核形式</span>
-        <span class="value"><abbr title="TODO" class="__web-inspector-hide-shortcut__">TODO</abbr></span>
+        <span class="value">{{ course['FinalTestType'] }}</span>
         <span class="key">标签</span>
         {% for i in course['Tag'] %}
         <div class="chip">{{ i }}</div>
         {% end %}
-        <span class="key">评分 (0 / 100)</span>
+        <span class="key">评分 ({{ course['Mark'] }} / 100)</span>
         <div class="progress">
-            <div class="determinate" style="width: 0%"></div>
+            <div class="determinate" style="width: {{ course['Mark'] }}%"></div>
         </div>
     </div>
     <div class="col s6">
         <h2><i class="material-icons small">comment</i>评论
-            <small>( TODO 条)
+            <small>( {{ course['Count'] }} 条)
                 <a class="btn-floating btn-large waves-effect waves-light red right" id="add_comment">
                     <i class="material-icons">mode_edit</i>
                 </a>
@@ -58,50 +58,50 @@
     </div>
     <div class="col s1 divider"></div>
 </div>
-<div id="write_comment_box" class="modal modal-fixed-footer">
+<div id="write_comment_box" class="modal">
     <div class="modal-content">
         <h4>请写下您对这门课的评价</h4>
         <div class="row">
-            <form class="col s12">
+            <form class="col s12" method="post">
                 <input type="hidden" name="CourseId" value="{{ course['_id'] }}">
                 <div class="row">
                     <div class="input-field col s6">
-                        <input id="StudentId" type="text" class="validate" required>
+                        <input id="StudentId" name="StudentId" type="text" class="validate" required>
                         <label for="StudentId">学号</label>
                     </div>
                     <div class="input-field col s6">
-                        <input id="NickName" type="text" class="validate" required>
+                        <input id="NickName" name="NickName" type="text" class="validate" required>
                         <label for="NickName">昵称</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s6">
-                        <input id="CheckIn" type="number" class="validate" placeholder="大概一个学期点了多少次名" min="0" required>
+                        <input id="CheckIn" name="CheckIn" type="number" class="validate" placeholder="大概一个学期点了多少次名" min="0" required>
                         <label for="CheckIn">点名次数</label>
                     </div>
                     <div class="input-field col s6">
-                        <input id="Mark" type="number" class="validate" placeholder="对这门课程的评分，满分 100 分" max="100"
+                        <input id="Mark" name="Mark" type="number" class="validate" placeholder="对这门课程的评分，满分 100 分" max="100"
                                min="0" required>
                         <label for="Mark">评分</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <textarea id="Content" class="materialize-textarea" required></textarea>
+                        <textarea id="Content" name="Content" class="materialize-textarea" required></textarea>
                         <label for="Content">课程评价</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <textarea id="FinalTestType" class="materialize-textarea"
+                        <textarea id="FinalTestType" name="FinalTestType" class="materialize-textarea"
                                   placeholder="该门课程期末的考核形式，例如是开卷考试或者写一篇论文等等。" required></textarea>
                         <label for="FinalTestType">期末考核形式</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <input id="Name" type="text" class="validate" placeholder="以 , 隔开多个标签 重复标签将不会被记录">
-                        <label for="Name">标签</label>
+                        <input id="Tag" name="Tag" type="text" class="validate" placeholder="以 , 隔开多个标签 重复标签将不会被记录">
+                        <label for="Tag">标签</label>
                     </div>
                 </div>
         </div>
