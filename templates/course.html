@@ -1,6 +1,14 @@
 {% extends base.html %}
 {% block title %}课程列表{% end %}
 {% block main %}
+<div class="row">
+    <div class="col s1 m3 divider"></div>
+    <div class="input-field col s12 m6">
+        <i class="material-icons prefix">search</i>
+        <input placeholder="筛选课程" id="filter" type="text">
+    </div>
+    <div class="col s1 m3 divider"></div>
+</div>
 <table id="course" class="centered highlight bordered responsive-table">
     <thead>
     <tr>
@@ -11,24 +19,25 @@
         <th>开课学院</th>
         <th>评分</th>
         <th>评论数</th>
-        <th><a class="btn-floating waves-effect waves-light red center" id="add_comment"><i class="material-icons">add</i></a></th>
+        <th><a class="btn-floating waves-effect waves-light red center" id="add_comment"><i
+                class="material-icons">add</i></a></th>
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+    {% for i in courses %}
+    <tr>
+        <td>{{ i['Name'] }}</td>
+        <td>{{ i['TeacherName'] }}</td>
+        <td>{{ i['Type'] }}</td>
+        <td>{{ i['Campus'] }}</td>
+        <td>{{ i['Academy'] }}</td>
+        <td>{{ i['Mark'] }}</td>
+        <td>{{ i['CommentCount'] }}</td>
+        <td><a href="/course/{{ i['_id'] }}">更多信息</a></td>
+    </tr>
+    {% end %}
+    </tbody>
 </table>
-<ul class="pagination center">
-    <li class="disabled lastPage1"><a><i class="material-icons">chevron_left</i></a></li>
-    <li class="active coursePage"><a>1</a></li>
-    <li class="waves-effect coursePage"><a>2</a></li>
-    <li class="waves-effect coursePage"><a>3</a></li>
-    <li class="waves-effect coursePage"><a>4</a></li>
-    <li class="waves-effect coursePage"><a>5</a></li>
-    <li class="waves-effect coursePage"><a>6</a></li>
-    <li class="waves-effect coursePage"><a>7</a></li>
-    <li class="waves-effect coursePage"><a>8</a></li>
-    <li class="waves-effect coursePage"><a>9</a></li>
-    <li class="waves-effect nextPage1"><a><i class="material-icons">chevron_right</i></a></li>
-</ul>
 <div id="write_comment_box" class="modal">
     <div class="modal-content">
         <h4>新增一门课程</h4>
@@ -48,21 +57,27 @@
                     <div class="input-field col s4">
                         <select name="Type">
                             <option value="" disabled selected>课程归属</option>
-                            {% for k, v in classType.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                            {% for k, v in classType.items() %}
+                            <option value="{{ k }}">{{ v }}</option>
+                            {% end %}
                             <label>课程归属</label>
                         </select>
                     </div>
                     <div class="input-field col s4">
                         <select name="Campus">
                             <option value="" disabled selected>校区归属</option>
-                            {% for k, v in classCampus.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                            {% for k, v in classCampus.items() %}
+                            <option value="{{ k }}">{{ v }}</option>
+                            {% end %}
                             <label>校区归属</label>
                         </select>
                     </div>
                     <div class="input-field col s4">
                         <select name="Academy">
                             <option value="" disabled selected>开设学院</option>
-                            {% for k, v in classAcademy.items() %}<option value="{{ k }}">{{ v }}</option>{% end %}
+                            {% for k, v in classAcademy.items() %}
+                            <option value="{{ k }}">{{ v }}</option>
+                            {% end %}
                             <label>开设学院</label>
                         </select>
                     </div>

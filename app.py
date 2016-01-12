@@ -44,31 +44,8 @@ class IndexHandler(tornado.web.RequestHandler):
 
 
 class CourseHandler(tornado.web.RequestHandler):
+    @tornado.gen.coroutine
     def get(self):
-        return self.render('course.html', location='course', classType=classType, classCampus=classCampus,
-                           classAcademy=classAcademy)
-
-    @tornado.gen.coroutine
-    def post(self):
-        try:
-            inf = {
-                'Name': self.get_body_argument('Name'),
-                'TeacherName': self.get_body_argument('TeacherName'),
-                'Type': int(self.get_body_argument('Type')),
-                'Campus': int(self.get_body_argument('Campus')),
-                'Academy': int(self.get_body_argument('Academy')),
-                'FinalTestType': '管理员尚未整理',
-                'isPub': 0,
-            }
-        except:
-            return self.send_error()
-        yield db.courses.insert(inf)
-        return
-
-
-class CoursePageHandler(tornado.web.RequestHandler):
-    @tornado.gen.coroutine
-    def get(self, pageNum):
         commentSort = []
         commentSortCur = db.comments.aggregate([{'$group': {'_id': '$CourseId', 'num': {'$sum': 1}}}])
         courses = []
@@ -91,11 +68,25 @@ class CoursePageHandler(tornado.web.RequestHandler):
                 i['CommentCount'] = [x['num'] for x in commentSort if x['_id'] == i['_id']][0]
             except:
                 i['CommentCount'] = 0
+        return self.render('course.html', location='course', classType=classType, classCampus=classCampus,
+                           classAcademy=classAcademy, courses=courses)
+
+    @tornado.gen.coroutine
+    def post(self):
         try:
-            courses = courses[(int(pageNum) - 1) * 10: int(pageNum) * 10 - 1]
+            inf = {
+                'Name': self.get_body_argument('Name'),
+                'TeacherName': self.get_body_argument('TeacherName'),
+                'Type': int(self.get_body_argument('Type')),
+                'Campus': int(self.get_body_argument('Campus')),
+                'Academy': int(self.get_body_argument('Academy')),
+                'FinalTestType': '管理员尚未整理',
+                'isPub': 0,
+            }
         except:
-            pass
-        return self.render('course.page.html', location='course', courses=courses)
+            return self.send_error()
+        yield db.courses.insert(inf)
+        return
 
 
 class CourseDetailHandler(tornado.web.RequestHandler):
@@ -161,7 +152,7 @@ class CourseDetailPageHandler(tornado.web.RequestHandler):
     def get(self, courseId, pageNum):
         comment = []
         commentCur = db.comments.find({'CourseId': ObjectId(courseId)}).sort([('Time', -1)]).skip(
-            (int(pageNum) - 1) * 10).limit(10)
+                (int(pageNum) - 1) * 10).limit(10)
         while (yield commentCur.fetch_next):
             comment.append(commentCur.next_object())
         for i in comment:
@@ -184,7 +175,6 @@ if __name__ == '__main__':
     application = tornado.web.Application([
         (r'/', IndexHandler),
         (r'/course', CourseHandler),
-        (r'/course/page/(\d+)', CoursePageHandler),
         (r'/course/(\w{24})', CourseDetailHandler),
         (r'/course/(\w{24})/page/(\d+)', CourseDetailPageHandler),
         (r'/about', AboutHandler),
