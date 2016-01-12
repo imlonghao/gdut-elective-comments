@@ -4,9 +4,18 @@ function range(start, count) {
             return index + start;
         });
 }
-$.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    return results[1] || 0;
+function getQueryParam(url, key) {
+    var queryStartPos = url.indexOf('?');
+    if (queryStartPos === -1) {
+        return;
+    }
+    var params = url.substring(queryStartPos + 1).split('&');
+    for (var i = 0; i < params.length; i++) {
+        var pairs = params[i].split('=');
+        if (decodeURIComponent(pairs.shift()) == key) {
+            return decodeURIComponent(pairs.join('='));
+        }
+    }
 }
 // Course.Detail
 function changePage(page) {
@@ -34,7 +43,7 @@ function changePage(page) {
 $(document).ready(function () {
     $("#comment").load("/course/" + $("input[name=CourseId]").attr("value") + "/page/" + $(".active.commentPage").text())
     $('select').material_select();
-    switch (parseInt($.urlParam("code"))) {
+    switch (parseInt(getQueryParam(window.location.href, "code"))) {
         case -1:
             Materialize.toast("您已经评价该这门课程，不能重复评价", 5000);
             break;
@@ -70,6 +79,6 @@ $("input#filter").keyup(function () {
 });
 // Cookie
 $("form#newComment").submit(function () {
-    Cookies.set("StudentId", $('input[name="StudentId"]').val(), {expires: 30, secure: true})
+    Cookies.set("StudentId", $('input[name="StudentId"]').val(), {expires: 30, secure: true});
     Cookies.set("NickName", $('input[name="NickName"]').val(), {expires: 30, secure: true})
 });
