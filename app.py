@@ -84,9 +84,9 @@ class CourseHandler(tornado.web.RequestHandler):
                 'isPub': 0,
             }
         except:
-            return self.send_error()
+            return self.redirect('/course?code=0')
         yield db.courses.insert(inf)
-        return
+        return self.redirect('/course?code=2')
 
 
 class CourseDetailHandler(tornado.web.RequestHandler):
@@ -131,11 +131,11 @@ class CourseDetailHandler(tornado.web.RequestHandler):
                 'Time': int(time.time()),
             }
         except:
-            return self.send_error()
+            return self.redirect('/course/%s?code=0' % CourseId)
         if (yield db.comments.find_one({
             'StudentId': inf['StudentId'],
             'CourseId': inf['CourseId'],
-        })): return self.send_error()
+        })): return self.redirect('/course/%s?code=-1' % CourseId)
         tag = self.get_body_argument('Tag')
         yield db.tags.insert({
             'CourseId': ObjectId(CourseId),
@@ -144,7 +144,7 @@ class CourseDetailHandler(tornado.web.RequestHandler):
             'Time': int(time.time()),
         })
         yield db.comments.insert(inf)
-        return
+        return self.redirect('/course/%s?code=1' % CourseId)
 
 
 class CourseDetailPageHandler(tornado.web.RequestHandler):
