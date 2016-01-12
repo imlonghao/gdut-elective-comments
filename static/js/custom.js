@@ -48,6 +48,8 @@ $(document).ready(function () {
             Materialize.toast("课程添加成功，并将在管理员审核后显示", 5000);
             break;
     }
+    $('input[name="StudentId"]').val(Cookies.get("StudentId"));
+    $('input[name="NickName"]').val(Cookies.get("NickName"))
 });
 $(".commentPage").click(function () {
     changePage($(this).text())
@@ -65,4 +67,9 @@ $("a#add_comment").click(function () {
 // Filter
 $("input#filter").keyup(function () {
     $.uiTableFilter($("table#course"), this.value)
+});
+// Cookie
+$("form#newComment").submit(function () {
+    Cookies.set("StudentId", $('input[name="StudentId"]').val(), {expires: 30, secure: true})
+    Cookies.set("NickName", $('input[name="NickName"]').val(), {expires: 30, secure: true})
 });
