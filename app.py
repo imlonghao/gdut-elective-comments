@@ -98,23 +98,18 @@ class CourseDetailHandler(tornado.web.RequestHandler):
         course['Campus'] = classCampus[course['Campus']]
         course['Academy'] = classAcademy[course['Academy']]
         course['Count'] = yield db.comments.find({'CourseId': ObjectId(CourseId)}).count()
-        tag = []
-        tagcur = db.tags.find({'CourseId': ObjectId(CourseId)})
-        while (yield tagcur.fetch_next):
-            tag.append(tagcur.next_object())
-        course['Tag'] = []
-        for i in tag:
-            course['Tag'] += i['Content']
-        course['Tag'] = set(course['Tag'])
         Mark = []
         CheckIn = []
-        commentCur = db.comments.find({'CourseId': ObjectId(CourseId)}, {'Mark': 1, 'CheckIn': 1})
+        course['Tags'] = []
+        commentCur = db.comments.find({'CourseId': ObjectId(CourseId)}, {'Mark': 1, 'CheckIn': 1, 'Tags': 1})
         while (yield commentCur.fetch_next):
             n = commentCur.next_object()
             Mark.append(n['Mark'])
             CheckIn.append(n['CheckIn'])
+            course['Tags'] += n['Tags']
         course['Mark'] = average(Mark)
         course['CheckIn'] = average(CheckIn)
+        course['Tags'] = list(set(course['Tags']))
         return self.render('course.detail.html', location='course', course=course)
 
     @tornado.gen.coroutine
@@ -132,17 +127,14 @@ class CourseDetailHandler(tornado.web.RequestHandler):
             }
         except:
             return self.redirect('/course/%s?code=0' % CourseId)
+        try:
+            inf['Tags'] = self.get_body_argument('Tag').split(',')
+        except:
+            inf['Tags'] = []
         if (yield db.comments.find_one({
             'StudentId': inf['StudentId'],
             'CourseId': inf['CourseId'],
         })): return self.redirect('/course/%s?code=-1' % CourseId)
-        tag = self.get_body_argument('Tag')
-        yield db.tags.insert({
-            'CourseId': ObjectId(CourseId),
-            'Content': list(set(tag.split(','))),
-            'StudentId': inf['StudentId'],
-            'Time': int(time.time()),
-        })
         yield db.comments.insert(inf)
         return self.redirect('/course/%s?code=1' % CourseId)
 
