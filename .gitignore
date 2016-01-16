@@ -66,3 +66,7 @@ pip-selfcheck.json
 
 # DB Connection
 db.py
+
+# OneAPM
+blueware.ini
+
