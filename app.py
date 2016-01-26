@@ -23,6 +23,7 @@ classCampus = {
 classAcademy = {
     1: '通识教育中心',
     2: '体育部',
+    3: '学生处',
 }
 
 
