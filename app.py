@@ -4,11 +4,11 @@ import time
 import tornado.gen
 import tornado.web
 import tornado.ioloop
-from db import db
-from bson.objectid import ObjectId
-from tornado.options import define, options
+import tornado.options
+import rethinkdb as r
+import datetime
 
-define('port', default=9999, type=int)
+tornado.options.define('port', default=9999, type=int)
 
 classType = {
     1: '人文社会科学类',
@@ -47,26 +47,24 @@ class IndexHandler(tornado.web.RequestHandler):
 class CourseHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self):
-        commentSort = []
-        commentSortCur = db.comments.aggregate([{'$group': {'_id': '$CourseId', 'num': {'$sum': 1}}}])
+        conn = yield r.connect(host='10.0.3.12', db='gec')
+        commentSort = yield r.table('comments').group('CourseId').count().run(conn)
         courses = []
-        coursesCur = db.courses.find({'isPub': 1})
-        while (yield commentSortCur.fetch_next):
-            commentSort.append(commentSortCur.next_object())
-        while (yield coursesCur.fetch_next):
-            courses.append(coursesCur.next_object())
+        coursesCur = yield r.table('courses').filter({'isPub': 1}).run(conn)
+        Mark = yield r.table('comments').group('CourseId').avg('Mark').run(conn)
+        while (yield coursesCur.fetch_next()):
+            course = yield coursesCur.next()
+            courses.append(course)
         for i in courses:
             i['Type'] = classType[i['Type']]
             i['Campus'] = classCampus[i['Campus']]
             i['Academy'] = classAcademy[i['Academy']]
-            cur = db.comments.find({'CourseId': i['_id']}, {'Mark': 1})
-            Mark = []
-            while (yield cur.fetch_next):
-                n = cur.next_object()
-                Mark.append(n['Mark'])
-            i['Mark'] = average(Mark)
             try:
-                i['CommentCount'] = [x['num'] for x in commentSort if x['_id'] == i['_id']][0]
+                i['Mark'] = Mark[i['id']]
+            except:
+                i['Mark'] = -1
+            try:
+                i['CommentCount'] = commentSort[i['id']]
             except:
                 i['CommentCount'] = 0
         return self.render('course.html', location='course', classType=classType, classCampus=classCampus,
@@ -74,6 +72,7 @@ class CourseHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
+        conn = yield r.connect(host='10.0.3.12', db='gec')
         try:
             inf = {
                 'Name': self.get_body_argument('Name'),
@@ -86,25 +85,27 @@ class CourseHandler(tornado.web.RequestHandler):
             }
         except:
             return self.redirect('/course?code=0')
-        yield db.courses.insert(inf)
+        yield r.table('courses').insert(inf).run(conn)
         return self.redirect('/course?code=2')
 
 
 class CourseDetailHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, CourseId):
-        course = yield db.courses.find_one({'_id': ObjectId(CourseId), 'isPub': 1})
+        conn = yield r.connect(host='10.0.3.12', db='gec')
+        course = yield r.table('courses').get(CourseId).run(conn)
         if not course: return self.send_error(404)
         course['Type'] = classType[course['Type']]
         course['Campus'] = classCampus[course['Campus']]
         course['Academy'] = classAcademy[course['Academy']]
-        course['Count'] = yield db.comments.find({'CourseId': ObjectId(CourseId)}).count()
+        course['Count'] = yield r.table('comments').filter({'CourseId': CourseId}).count().run(conn)
         Mark = []
         CheckIn = []
         course['Tags'] = []
-        commentCur = db.comments.find({'CourseId': ObjectId(CourseId)}, {'Mark': 1, 'CheckIn': 1, 'Tags': 1})
-        while (yield commentCur.fetch_next):
-            n = commentCur.next_object()
+        commentCur = yield r.table('comments').get_all(CourseId, index='CourseId').pluck(
+                {'Mark', 'CheckIn', 'Tags'}).run(conn)
+        while (yield commentCur.fetch_next()):
+            n = yield commentCur.next()
             Mark.append(n['Mark'])
             CheckIn.append(n['CheckIn'])
             course['Tags'] += n['Tags']
@@ -115,16 +116,17 @@ class CourseDetailHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self, CourseId):
+        conn = yield r.connect(host='10.0.3.12', db='gec')
         try:
             inf = {
-                'CourseId': ObjectId(CourseId),
+                'CourseId': CourseId,
                 'StudentId': int(self.get_body_argument('StudentId')),
                 'NickName': self.get_body_argument('NickName'),
                 'Content': self.get_body_argument('Content'),
                 'CheckIn': int(self.get_body_argument('CheckIn')),
                 'FinalTestType': self.get_body_argument('FinalTestType'),
                 'Mark': int(self.get_body_argument('Mark')),
-                'Time': int(time.time()),
+                'Time': (yield r.now().run(conn)),
             }
         except:
             return self.redirect('/course/%s?code=0' % CourseId)
@@ -132,24 +134,22 @@ class CourseDetailHandler(tornado.web.RequestHandler):
             inf['Tags'] = self.get_body_argument('Tag').split(',')
         except:
             inf['Tags'] = []
-        if (yield db.comments.find_one({
-            'StudentId': inf['StudentId'],
-            'CourseId': inf['CourseId'],
-        })): return self.redirect('/course/%s?code=-1' % CourseId)
-        yield db.comments.insert(inf)
+        if (yield r.table('comments').filter(
+                {'StudentId': inf['StudentId'], 'CourseId': inf['CourseId'], }).count().run(
+                conn)): return self.redirect(
+                '/course/%s?code=-1' % CourseId)
+        yield r.table('comments').insert(inf).run(conn)
         return self.redirect('/course/%s?code=1' % CourseId)
 
 
 class CourseDetailPageHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, courseId, pageNum):
-        comment = []
-        commentCur = db.comments.find({'CourseId': ObjectId(courseId)}).sort([('Time', -1)]).skip(
-                (int(pageNum) - 1) * 10).limit(10)
-        while (yield commentCur.fetch_next):
-            comment.append(commentCur.next_object())
+        conn = yield r.connect(host='10.0.3.12', db='gec')
+        comment = yield r.table('comments').filter({'CourseId': courseId}).order_by(r.desc('Time')).skip(
+                (int(pageNum) - 1) * 10).limit(10).run(conn)
         for i in comment:
-            i['Time'] = datetimeformat(i['Time'])
+            i['Time'] = (i['Time'] + datetime.timedelta(hours=8)).strftime('%Y-%m-%d %H:%M')
         return self.render('course.datail.page.html', location='course', comment=comment)
 
 
@@ -159,8 +159,8 @@ class AboutHandler(tornado.web.RequestHandler):
 
 
 if __name__ == '__main__':
-    db = db()
-    options.parse_command_line()
+    tornado.options.options.parse_command_line()
+    r.set_loop_type('tornado')
     settings = {
         'static_path': os.path.join(os.path.dirname(__file__), 'static'),
         'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
@@ -168,10 +168,10 @@ if __name__ == '__main__':
     application = tornado.web.Application([
         (r'/', IndexHandler),
         (r'/course', CourseHandler),
-        (r'/course/(\w{24})', CourseDetailHandler),
-        (r'/course/(\w{24})/page/(\d+)', CourseDetailPageHandler),
+        (r'/course/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})', CourseDetailHandler),
+        (r'/course/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/page/(\d+)', CourseDetailPageHandler),
         (r'/about', AboutHandler),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static'}),
     ], **settings)
-    application.listen(options.port, '127.0.0.1', xheaders=True)
+    application.listen(tornado.options.options.port, '127.0.0.1', xheaders=True)
     tornado.ioloop.IOLoop.instance().start()

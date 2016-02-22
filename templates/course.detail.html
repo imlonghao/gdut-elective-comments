@@ -83,7 +83,7 @@
         <h4>请写下您对这门课的评价</h4>
         <div class="row">
             <form id="newComment" class="col s12" method="post">
-                <input type="hidden" name="CourseId" value="{{ course['_id'] }}">
+                <input type="hidden" name="CourseId" value="{{ course['id'] }}">
                 <div class="row">
                     <div class="input-field col s6">
                         <input id="StudentId" name="StudentId" type="text" class="validate" required>

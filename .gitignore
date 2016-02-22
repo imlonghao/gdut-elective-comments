@@ -64,9 +64,3 @@ pip-selfcheck.json
 # IDEA
 .idea/
 
-# DB Connection
-db.py
-
-# OneAPM
-blueware.ini
-
