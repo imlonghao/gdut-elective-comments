@@ -47,7 +47,6 @@ class IndexHandler(tornado.web.RequestHandler):
 class CourseHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self):
-        conn = yield r.connect(host='10.0.3.12', db='gec')
         commentSort = yield r.table('comments').group('CourseId').count().run(conn)
         courses = []
         coursesCur = yield r.table('courses').filter({'isPub': 1}).run(conn)
@@ -72,7 +71,6 @@ class CourseHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        conn = yield r.connect(host='10.0.3.12', db='gec')
         try:
             inf = {
                 'Name': self.get_body_argument('Name'),
@@ -92,7 +90,6 @@ class CourseHandler(tornado.web.RequestHandler):
 class CourseDetailHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, CourseId):
-        conn = yield r.connect(host='10.0.3.12', db='gec')
         course = yield r.table('courses').get(CourseId).run(conn)
         if not course: return self.send_error(404)
         course['Type'] = classType[course['Type']]
@@ -116,7 +113,6 @@ class CourseDetailHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self, CourseId):
-        conn = yield r.connect(host='10.0.3.12', db='gec')
         try:
             inf = {
                 'CourseId': CourseId,
@@ -145,7 +141,6 @@ class CourseDetailHandler(tornado.web.RequestHandler):
 class CourseDetailPageHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self, courseId, pageNum):
-        conn = yield r.connect(host='10.0.3.12', db='gec')
         comment = yield r.table('comments').filter({'CourseId': courseId}).order_by(r.desc('Time')).skip(
                 (int(pageNum) - 1) * 10).limit(10).run(conn)
         for i in comment:
@@ -158,9 +153,12 @@ class AboutHandler(tornado.web.RequestHandler):
         return self.render('about.html', location='about')
 
 
-if __name__ == '__main__':
+@tornado.gen.coroutine
+def main():
+    global conn
     tornado.options.options.parse_command_line()
     r.set_loop_type('tornado')
+    conn = yield r.connect(host='10.0.3.12', db='gec')
     settings = {
         'static_path': os.path.join(os.path.dirname(__file__), 'static'),
         'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
@@ -174,4 +172,8 @@ if __name__ == '__main__':
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static'}),
     ], **settings)
     application.listen(tornado.options.options.port, '127.0.0.1', xheaders=True)
+
+
+if __name__ == '__main__':
+    main()
     tornado.ioloop.IOLoop.instance().start()
