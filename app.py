@@ -158,7 +158,7 @@ def main():
     global conn
     tornado.options.options.parse_command_line()
     r.set_loop_type('tornado')
-    conn = yield r.connect(host='10.0.3.12', db='gec')
+    conn = yield r.connect(host='127.0.0.1', db='gec')
     settings = {
         'static_path': os.path.join(os.path.dirname(__file__), 'static'),
         'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
